@@ -1,0 +1,4 @@
+services:
+  day_counter.event_date:
+    class: Drupal\day_counter\DayCounterService
+    arguments: ['@entity.query', '@entity.manager']

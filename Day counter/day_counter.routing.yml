@@ -1,0 +1,7 @@
+day_counter.content:
+  path: '/day_counter'
+  defaults:
+    _controller: '\Drupal\day_counter\Controller\DayCounterController::content'
+    _title: 'Day counter'
+  requirements:
+    _permission: 'access content'
