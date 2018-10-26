@@ -1,4 +1,3 @@
 services:
-  day_counter.event_date:
-    class: Drupal\day_counter\DayCounterService
-    arguments: ['@entity.query', '@entity.manager']
+  day_counter.get_difference:
+    class: Drupal\day_counter\GetDifference
