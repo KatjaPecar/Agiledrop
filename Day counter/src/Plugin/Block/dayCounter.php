@@ -43,7 +43,7 @@ class DayCounter extends BlockBase implements ContainerFactoryPluginInterface {
 
     // get event time from article
     $eventDate = $node->field_event_date->value;
-    $eventDate = '2018-10-27 00:59:01';
+    //$eventDate = '2018-10-27 00:59:01';
 
     // call service method to calculate difference in days
     $output = $this->getDifference->calculateDifference(new DateTime\DrupalDateTime($eventDate));
