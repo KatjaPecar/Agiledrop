@@ -3,6 +3,11 @@
 namespace Drupal\day_counter\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
+use Drupal\day_counter\GetDifference;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
+use Drupal\Core\DateTime;
 
 /**
  * Provides a 'Day counter' Block.
@@ -13,39 +18,38 @@ use Drupal\Core\Block\BlockBase;
  *   category = @Translation("Day counter module"),
  * )
  */
-class DayCounter extends BlockBase {
+class DayCounter extends BlockBase implements ContainerFactoryPluginInterface {
 
-  /**
-   * {@inheritdoc}
-   */
+  protected $getDifference;
+
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, GetDifference $getDifference) {
+     parent::__construct($configuration, $plugin_id, $plugin_definition);
+     $this->getDifference = $getDifference;
+  }
+
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+     $configuration,
+     $plugin_id,
+     $plugin_definition,
+     $container->get('day_counter.get_difference')
+   );
+  }
+
   public function build() {
 
-    $eventDate = 'Fri, 10/28/2018 - 20:00';
-    //$date = substr($eventDate, 4, 11);
-    $date = explode("/",substr($eventDate, 4, 11));
-    $day = trim($date[1]);
-    $month = trim($date[0]);
-    $year = trim($date[2]);
+    // get currently displayed node based on url
+    $node = \Drupal::routeMatch()->getParameter('node');
 
-    //$todaysDate = date("m/d/Y");
-    $todaysDate = date("Ymd");
-    $givenDate = $year . $month . $day;
+    // get event time from article
+    $eventDate = $node->field_event_date->value;
+    $eventDate = '2018-10-27 00:59:01';
 
-    $output = '';
-
-    if ($givenDate < $todaysDate) {
-      $output = 'The event has ended.';
-    } elseif ($givenDate > $todaysDate) {
-      $daysLeft = $givenDate - $todaysDate;
-      $output = 'Days left to event start: ' . $daysLeft;
-    } else {
-      $output = 'This event is happening today.';
-    }
-
+    // call service method to calculate difference in days
+    $output = $this->getDifference->calculateDifference(new DateTime\DrupalDateTime($eventDate));
 
     return array(
       '#type' => 'markup',
-      //'#markup' => $this->t('My block thingie-!: '. $todaysDate . '; my date: ' . $date[2] . ', <br> given date: ' . $givenDate . '<br> today: ' . $todaysDate . '<br>' . $output),
       '#markup' => $this->t($output),
     );
   }
